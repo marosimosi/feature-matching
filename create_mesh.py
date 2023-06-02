@@ -92,12 +92,13 @@ ms.save_current_mesh("barbara_remeshed.obj")
 # load the remeshed mesh
 remesh = o3d.io.read_triangle_mesh("barbara_remeshed.obj")
 
-
 # for later use
 remesh_vertices = np.asarray(remesh.vertices)
 remesh_triangles = np.asarray(remesh.triangles)
 remesh.compute_vertex_normals()
 remesh.compute_triangle_normals()
+
+
 
 # COMPARE
 o3d.visualization.draw_geometries([mesh], mesh_show_wireframe=True)
