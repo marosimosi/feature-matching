@@ -68,7 +68,79 @@ def sample_colormap(scalars):
     return colors[:,:-1]
 
 
+# ------------------------SIGNATURES-------------------------------
+def curvature(mesh, vertices, triangles):
+    # calculate delta coordinates
+    delta = delta_coordinates(vertices, triangles)
+    # calculate norm of delta vector
+    norm = np.sqrt((delta * delta).sum(-1))
+    norm = (norm - norm.min()) / (norm.max() - norm.min())
+    return norm
 
+
+
+def saliency(mesh, vertices, triangles):
+    # compute face areas
+    face_areas = []
+    for face in triangles:
+        p0, p1, p2 = vertices[face]
+        v0, v1, v2 = p1 - p0, p2 - p0, p2 - p1
+        cross_product = np.cross(v0, v1)
+        area = 0.5 * np.linalg.norm(cross_product)
+        face_areas.append(area)
+
+    # get adjacency matrix
+    adjacency_matrix = adjacency_matrix_sparse(triangles)
+
+    # compute vertex saliency
+    vertex_saliency = []
+    for vertex_id in range(len(vertices)):
+        saliency = 0.0
+
+        neighbor_indices = adjacency_matrix[vertex_id].nonzero()[1]
+        for neighbor_id in neighbor_indices:
+            neighbor_normal = mesh.vertex_normals[neighbor_id]
+            vertex_normal = mesh.vertex_normals[vertex_id]
+            angle = np.arccos(np.dot(neighbor_normal, vertex_normal))
+            saliency += angle * face_areas[neighbor_id]
+        vertex_saliency.append(saliency)
+
+    # normalize
+    max_saliency = max(vertex_saliency)
+    min_saliency = min(vertex_saliency)
+    normalized_saliency = [(s - min_saliency) / (max_saliency - min_saliency) for s in vertex_saliency]
+    return normalized_saliency
+
+
+
+
+def concavity(mesh, vertices, triangles):
+    # get adjacency matrix
+    adjacency_matrix = adjacency_matrix_sparse(triangles)
+
+    vertex_concavity = []
+    for vertex_id in range(len(vertices)):
+        concavity = 0.0
+
+        neighbor_indices = adjacency_matrix[vertex_id].nonzero()[1]
+        for neighbor_id in neighbor_indices:
+            neighbor_normal = mesh.vertex_normals[neighbor_id]
+            vertex_normal = mesh.vertex_normals[vertex_id]
+            angle = np.arccos(np.dot(neighbor_normal, vertex_normal))
+            if angle > np.pi / 2:
+                concavity += np.pi - angle
+        vertex_concavity.append(concavity)
+
+    # normalize
+    max_concavity = max(vertex_concavity)
+    min_concavity = min(vertex_concavity)
+    normalized_concavity = [(s - min_concavity) / (max_concavity - min_concavity) for s in vertex_concavity]
+    return normalized_concavity
+    
+    return concavity
+
+
+# -------------------------------------------------------------------
 
 
 
