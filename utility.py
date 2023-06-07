@@ -111,35 +111,6 @@ def saliency(mesh, vertices, triangles):
     normalized_saliency = [(s - min_saliency) / (max_saliency - min_saliency) for s in vertex_saliency]
     return normalized_saliency
 
-
-
-
-def concavity(mesh, vertices, triangles):
-    # get adjacency matrix
-    adjacency_matrix = adjacency_matrix_sparse(triangles)
-
-    vertex_concavity = []
-    for vertex_id in range(len(vertices)):
-        concavity = 0.0
-
-        neighbor_indices = adjacency_matrix[vertex_id].nonzero()[1]
-        for neighbor_id in neighbor_indices:
-            neighbor_normal = mesh.vertex_normals[neighbor_id]
-            vertex_normal = mesh.vertex_normals[vertex_id]
-            angle = np.arccos(np.dot(neighbor_normal, vertex_normal))
-            if angle > np.pi / 2:
-                concavity += np.pi - angle
-        vertex_concavity.append(concavity)
-
-    # normalize
-    max_concavity = max(vertex_concavity)
-    min_concavity = min(vertex_concavity)
-    normalized_concavity = [(s - min_concavity) / (max_concavity - min_concavity) for s in vertex_concavity]
-    return normalized_concavity
-    
-    return concavity
-
-
 # -------------------------------------------------------------------
 
 
