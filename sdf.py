@@ -1,82 +1,96 @@
 import numpy as np
 from sklearn.cluster import KMeans
 import open3d as o3d
+from yellowbrick.cluster import KElbowVisualizer
+import matplotlib.pyplot as plt
+from math import sqrt
 
-def calculate_sdf(vertices, triangles, vertex_normals, points):
-    sdf_values = np.zeros(vertices.shape[0], dtype=float)  # Specify float dtype for sdf_values
-    epsilon = 1e-6  # Small value to avoid division by zero
+def calculate_sdf(vertices, triangles, vertex_normals, triangle_normals, points):
+    angle_limit = np.cos(np.radians(45))
+    sdf_values = np.zeros(points.shape[0], dtype=float)  
+    epsilon = 1e-6  # avoid division by zero
     
     for i, vertex in enumerate(points):
         total_distance = 0.0
-        for triangle in triangles:
+        total_triangles = 0
+        for k in range(triangles.shape[0]):
+            triangle = triangles[k]
+            triangle_normal = triangle_normals[k]
+
             v0 = vertices[triangle[0]]
             v1 = vertices[triangle[1]]
             v2 = vertices[triangle[2]]
             
-            n0 = vertex_normals[triangle[0]]
-            n1 = vertex_normals[triangle[1]]
-            n2 = vertex_normals[triangle[2]]
-            
-            # Calculate the triangle normal
-            triangle_normal = np.cross(v1 - v0, v2 - v0).astype(float)
-            triangle_normal /= np.linalg.norm(triangle_normal)
-            
             # Check if the vertex is on the same side as the triangle normal
-            if np.dot(triangle_normal, vertex - v0) <= 0.0:
+            if np.dot(vertex_normals[i], -triangle_normal) >= angle_limit:
                 continue
-            
-            # Calculate the cone direction
-            cone_direction = triangle_normal if np.dot(triangle_normal, vertex) >= 0.0 else -triangle_normal
             
             # Send rays inside the cone and calculate distances
             ray_distances = []
             for j in range(3):
                 v = vertices[triangle[j]]
                 n = vertex_normals[triangle[j]]
-                
-                # Calculate the ray direction inside the cone
-                ray_direction = np.cross(n, cone_direction)
-                ray_direction /= np.linalg.norm(ray_direction)
-                
-                # Calculate the ray distance to the other side of the mesh
-                ray_distance = np.dot(ray_direction, v - vertex) / (np.dot(ray_direction, triangle_normal) + epsilon)
+
+                ray_distance = sqrt((v[0] - vertex[0])**2 + (v[1] - vertex[1])**2 + (v[2] - vertex[2])**2)
                 ray_distances.append(ray_distance)
+
             
-            # Calculate the weighted sum of ray distances
+            # Sum the max distance of each triangle
             total_distance += max(ray_distances)
+            total_triangles += 1
         
-        sdf_values[i] = total_distance
+        # Calculate the SDF value for the point
+        sdf_values[i] = total_distance / total_triangles
     
     return sdf_values
 
 
 
 
-mesh = o3d.io.read_triangle_mesh("barbara_remeshed.obj")
+
+
+
+mesh = o3d.io.read_triangle_mesh("models/barbara_remeshed.obj")
+# mesh = o3d.io.read_triangle_mesh("camel.obj")
+# mesh = o3d.io.read_triangle_mesh("cat.obj")
+# mesh = o3d.io.read_triangle_mesh("ioulia.obj")
+
+# mesh = o3d.io.read_triangle_mesh("horse.obj")
+# mesh = o3d.io.read_triangle_mesh("pose2.obj")
+# mesh = o3d.io.read_triangle_mesh("deformed.obj")
+# mesh = o3d.io.read_triangle_mesh("gallop1.obj")
+# mesh = o3d.io.read_triangle_mesh("lookup.obj")
+
 mesh.compute_vertex_normals()
 vertices = np.asarray(mesh.vertices)
 triangles = np.asarray(mesh.triangles)
 vertex_normals = np.asarray(mesh.vertex_normals)
+mesh.compute_triangle_normals()
+triangle_normals = np.asarray(mesh.triangle_normals)
 
 
 # Sample points uniformly for SDF
-pcd = mesh.sample_points_uniformly(number_of_points=100)
+pcd = mesh.sample_points_uniformly(number_of_points=400)
 points = np.asarray(pcd.points)
 
 # Calculate the SDF values for each point
-sdf_values = calculate_sdf(vertices, triangles, vertex_normals, points)
+sdf_values = calculate_sdf(vertices, triangles, vertex_normals, triangle_normals, points)
 
-print(f"SDF values: {sdf_values}")
+# Normalize the SDF values
+sdf_values = (sdf_values - np.min(sdf_values)) / (np.max(sdf_values) - np.min(sdf_values))
+
+
 
 
 
 # Apply clustering based on SDF values
-num_clusters = 5  
+num_clusters = 3
 kmeans = KMeans(n_clusters=num_clusters, n_init=10)
 kmeans.fit(sdf_values.reshape(-1, 1))
 clusters = kmeans.labels_
 
-print(f"Cluster assignments: {clusters}")
+# print the cluster centers
+print(f"Cluster centers: {kmeans.cluster_centers_}")
 
 
 
@@ -90,9 +104,9 @@ for i, cluster_label in enumerate(clusters-1):
     elif cluster_label == 2:
         colors[i] = [0, 0, 1]   # Blue
     elif cluster_label == 3:
-        colors[i] = [1, 1, 0]   # Yellow 
-    elif cluster_label == 4:
-        colors[i] = [1, 0, 1]   # Magenta
+        colors[i] = [0.5, 0.5, 0]   # Yellow 
+    # elif cluster_label == 4:
+    #     colors[i] = [0.5, 0.5, 0.5]   # Gray
 
 pcd.colors = o3d.utility.Vector3dVector(colors)
 o3d.visualization.draw_geometries([pcd])

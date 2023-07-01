@@ -3,7 +3,6 @@ import numpy as np
 import pymeshlab
 import matplotlib.pyplot as plt
 import utility as U
-import pymeshlab as ml
 
 def visualize(mesh, signature):
     # colormap
@@ -18,7 +17,7 @@ def visualize(mesh, signature):
 # ---------------------------PCD TO MESH
 
 # Load the point cloud 
-pcd = o3d.io.read_point_cloud("barbara.ply")
+pcd = o3d.io.read_point_cloud("models/barbara.ply")
 
 # Ball Pivoting Algorithm with multiple radii
 radii = [0.001, 0.002, 0.005, 0.01, 0.02, 0.04]
@@ -32,7 +31,7 @@ mesh.compute_vertex_normals()
 mesh.compute_triangle_normals()
 
 # save the mesh
-o3d.io.write_triangle_mesh("barbara.obj", mesh)
+o3d.io.write_triangle_mesh("models/barbara.obj", mesh)
 
 
 
@@ -40,12 +39,12 @@ o3d.io.write_triangle_mesh("barbara.obj", mesh)
 # --------------------------------ISOTROPIC REMESHING
 ms = pymeshlab.MeshSet()
 
-ms.load_new_mesh("barbara.obj")
+ms.load_new_mesh("models/barbara.obj")
 ms.apply_filter("meshing_isotropic_explicit_remeshing")
-ms.save_current_mesh("barbara_remeshed.obj")
+ms.save_current_mesh("models/barbara_remeshed.obj")
 
 # load the remeshed mesh
-remesh = o3d.io.read_triangle_mesh("barbara_remeshed.obj")
+remesh = o3d.io.read_triangle_mesh("models/barbara_remeshed.obj")
 
 # for later use
 remesh_vertices = np.asarray(remesh.vertices)
