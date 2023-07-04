@@ -1,9 +1,21 @@
 import numpy as np
 from sklearn.cluster import KMeans
 import open3d as o3d
-from yellowbrick.cluster import KElbowVisualizer
-import matplotlib.pyplot as plt
 from math import sqrt
+
+MODEL = "barbara_remeshed"
+# MODEL = "ioulia"
+# MODEL = "cat"
+# MODEL = "camel"
+
+# MODEL = "deformed"
+# MODEL = "lookup"
+
+# MODEL = "horse"
+# MODEL = "pose2"
+# MODEL = "gallop1"
+
+
 
 def calculate_sdf(vertices, triangles, vertex_normals, triangle_normals, points):
     angle_limit = np.cos(np.radians(45))
@@ -47,19 +59,7 @@ def calculate_sdf(vertices, triangles, vertex_normals, triangle_normals, points)
 
 
 
-
-
-
-mesh = o3d.io.read_triangle_mesh("models/barbara_remeshed.obj")
-# mesh = o3d.io.read_triangle_mesh("camel.obj")
-# mesh = o3d.io.read_triangle_mesh("cat.obj")
-# mesh = o3d.io.read_triangle_mesh("ioulia.obj")
-
-# mesh = o3d.io.read_triangle_mesh("horse.obj")
-# mesh = o3d.io.read_triangle_mesh("pose2.obj")
-# mesh = o3d.io.read_triangle_mesh("deformed.obj")
-# mesh = o3d.io.read_triangle_mesh("gallop1.obj")
-# mesh = o3d.io.read_triangle_mesh("lookup.obj")
+mesh = o3d.io.read_triangle_mesh("models/" + MODEL + ".obj")
 
 mesh.compute_vertex_normals()
 vertices = np.asarray(mesh.vertices)
@@ -81,9 +81,16 @@ sdf_values = (sdf_values - np.min(sdf_values)) / (np.max(sdf_values) - np.min(sd
 
 
 
+# save SDF values
+np.save("sdf/" + MODEL + "_SDF.npy", sdf_values)
+# save PCD
+o3d.io.write_point_cloud("pcd/" + MODEL + "_PCD.ply", pcd)
 
 
-# Apply clustering based on SDF values
+
+
+
+""" # Apply clustering based on SDF values
 num_clusters = 3
 kmeans = KMeans(n_clusters=num_clusters, n_init=10)
 kmeans.fit(sdf_values.reshape(-1, 1))
@@ -109,6 +116,6 @@ for i, cluster_label in enumerate(clusters-1):
     #     colors[i] = [0.5, 0.5, 0.5]   # Gray
 
 pcd.colors = o3d.utility.Vector3dVector(colors)
-o3d.visualization.draw_geometries([pcd])
+o3d.visualization.draw_geometries([pcd]) """
 
 
