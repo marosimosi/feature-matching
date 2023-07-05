@@ -4,16 +4,32 @@ import open3d as o3d
 from math import sqrt
 
 MODEL = "barbara_remeshed"
-# MODEL = "ioulia"
-# MODEL = "cat"
-# MODEL = "camel"
+
+
+# MODEL = "human1"
+# MODEL = "human2"
+
+# MODEL = "lion1"
+# MODEL = "lion2"
+# MODEL = "lion3"
+# MODEL = "lion4"
+# MODEL = "lion5"
+
+# MODEL ="cat1"
+# MODEL = "cat2"
+
+MODEL = "armadillo"
+
 
 # MODEL = "deformed"
 # MODEL = "lookup"
 
-# MODEL = "horse"
-# MODEL = "pose2"
+# MODEL = "gallop"
 # MODEL = "gallop1"
+# MODEL = "gallop2"
+# MODEL = "gallop4"
+
+
 
 
 
