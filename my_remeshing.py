@@ -12,6 +12,9 @@ def visualize(mesh, signature):
     # visualize
     o3d.visualization.draw_geometries([mesh])       # !!!  CTRL + 9 to show normals, CTRL + 1 to return
 
+
+
+
 def subdivide_mesh(vertices, triangles):
     num_vertices = len(vertices)
     num_triangles = len(triangles)
@@ -20,14 +23,14 @@ def subdivide_mesh(vertices, triangles):
     new_triangles = []
     edge_midpoints = {}  # To store and reuse edge midpoints
     
-    # Helper function to get or create a new midpoint vertex
+    # Helper function to get or create a midpoint vertex
     def get_midpoint_vertex(v_idx1, v_idx2):
         key = tuple(sorted([v_idx1, v_idx2]))
         if key in edge_midpoints:
             return edge_midpoints[key]
         else:
             v = (vertices[v_idx1] + vertices[v_idx2]) / 2
-            nonlocal new_vertices  # Use the outer variable new_vertices
+            nonlocal new_vertices  # outer variable
             new_vertices = np.vstack((new_vertices, v))
             v_idx = num_vertices + len(edge_midpoints)
             edge_midpoints[key] = v_idx

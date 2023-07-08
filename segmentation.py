@@ -6,29 +6,26 @@ import utility as U
 
 MODEL = "barbara_remeshed"
 
+# MODEL = "gallop"
+# MODEL = "gallop2"
+# MODEL = "gallop4"
 
-# MODEL = "human1"
-# MODEL = "human2"
+# MODEL = "crop"
+# MODEL = "deformed"
+# MODEL = "lookup"
 
 # MODEL = "lion1"
 # MODEL = "lion2"
 # MODEL = "lion3"
 # MODEL = "lion4"
-# MODEL = "lion5"
 
 # MODEL ="cat1"
 # MODEL = "cat2"
 
-MODEL = "armadillo"
+# MODEL = "human2"
 
+# MODEL = "armadillo"
 
-# MODEL = "deformed"
-# MODEL = "lookup"
-
-# MODEL = "gallop"
-# MODEL = "gallop1"
-# MODEL = "gallop2"
-# MODEL = "gallop4"
 
 
 
@@ -68,13 +65,9 @@ for i, cluster_label in enumerate(clusters-1):
         colors[i] = [0, 1, 0]   # Green
     elif cluster_label == 2:
         colors[i] = [0, 0, 1]   # Blue
-    elif cluster_label == 3:
-        colors[i] = [0.5, 0.5, 0]   # Yellow 
-    elif cluster_label == 4:
-        colors[i] = [0.5, 0.5, 0.5]   # Gray
 
 pcd.colors = o3d.utility.Vector3dVector(colors)
-# o3d.visualization.draw_geometries([pcd])
+o3d.visualization.draw_geometries([pcd])
 
 
 

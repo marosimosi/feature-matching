@@ -97,14 +97,6 @@ def curvature(mesh, vertices, triangles):
 
 
 def saliency(mesh, vertices, triangles):
-    # compute face areas
-    face_areas = []
-    for face in triangles:
-        p0, p1, p2 = vertices[face]
-        v0, v1, v2 = p1 - p0, p2 - p0, p2 - p1
-        cross_product = np.cross(v0, v1)
-        area = 0.5 * np.linalg.norm(cross_product)
-        face_areas.append(area)
 
     # get adjacency matrix
     adjacency_matrix = adjacency_matrix_sparse(triangles)
@@ -119,7 +111,7 @@ def saliency(mesh, vertices, triangles):
             neighbor_normal = mesh.vertex_normals[neighbor_id]
             vertex_normal = mesh.vertex_normals[vertex_id]
             angle = np.arccos(np.dot(neighbor_normal, vertex_normal))
-            saliency += angle * face_areas[neighbor_id]
+            saliency += angle 
         vertex_saliency.append(saliency)
 
     # normalize

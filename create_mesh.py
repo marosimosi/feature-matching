@@ -18,11 +18,12 @@ def visualize(mesh, signature):
 
 # Load the point cloud 
 pcd = o3d.io.read_point_cloud("models/barbara.ply")
+o3d.visualization.draw_geometries([pcd])
 
 # Ball Pivoting Algorithm with multiple radii
 radii = [0.001, 0.002, 0.005, 0.01, 0.02, 0.04]
 mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_ball_pivoting(pcd, o3d.utility.DoubleVector(radii))
-# o3d.visualization.draw_geometries([mesh])
+o3d.visualization.draw_geometries([mesh])
 
 # for later use
 mesh_vertices = np.asarray(mesh.vertices)
